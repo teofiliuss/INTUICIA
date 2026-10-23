@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<title>ТРЕНАЖОР НА ИНТУИЦИЯТА</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#1e3c72">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%AE%3C/text%3E%3C/svg%3E">
+<style>
+:root{color-scheme:light}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{font-family:system-ui,"Segoe UI",Arial,sans-serif;background:linear-gradient(135deg,#1e3c72,#6a3093);margin:0;color:#222;min-height:100dvh;padding:env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left)}
+.wrap{max-width:900px;margin:20px auto;background:#fff;border-radius:20px;padding:20px 30px calc(20px + env(safe-area-inset-bottom));box-shadow:0 10px 40px #0006}
+h1{text-align:center;font-size:clamp(1.35rem,4.6vw,2.4em);line-height:1.2;margin:.2em;color:#4a2a8a;overflow-wrap:anywhere}
+.tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.tab{font-size:1.2em;padding:10px 18px;border-radius:12px;border:2px solid #4a2a8a;background:#fff;color:#222;cursor:pointer;min-height:44px;touch-action:manipulation}
+.tab.on{background:#4a2a8a;color:#fff}
+.pick{display:flex;gap:15px;justify-content:center;margin:20px 0;flex-wrap:wrap}
+.cb{width:130px;height:110px;border-radius:18px;border:5px solid transparent;font-size:1.3em;font-weight:bold;color:#fff;cursor:pointer;text-shadow:0 1px 3px #000;min-height:44px;touch-action:manipulation}
+.cb.sel{border-color:#000;transform:scale(1.1);box-shadow:0 0 20px #0008}
+#num{font-size:2.5em;width:160px;max-width:100%;text-align:center;border-radius:12px;border:3px solid #4a2a8a;background:#fff;color:#222;padding:4px 8px}
+#start{display:block;margin:10px auto;font-size:2em;padding:15px 60px;border-radius:50px;border:0;background:#ff9800;color:#fff;font-weight:bold;cursor:pointer;max-width:100%;min-height:48px;touch-action:manipulation}
+#start:disabled{opacity:.5}
+#out{text-align:center;min-height:150px}
+.sw{width:150px;height:110px;max-width:100%;border-radius:18px;margin:10px auto;border:3px solid #333}
+.big{font-size:4em;font-weight:bold;overflow-wrap:anywhere}
+.msg{font-size:clamp(1.35rem,6vw,2.4em);font-weight:bold;padding:10px;border-radius:14px;color:#fff;overflow-wrap:anywhere}
+.hit{background:#2e9d3a;animation:fl .4s 5 alternate}.miss{background:#d32f2f}
+@keyframes fl{from{opacity:1;transform:scale(1)}to{opacity:.5;transform:scale(1.05)}}
+table{border-collapse:collapse;width:100%;margin:10px 0}td,th{border:1px solid #ccc;padding:5px;text-align:center}
+tr.good{background:#c8f7c5;font-weight:bold}
+.hist{display:flex;flex-wrap:wrap;gap:3px;margin:8px 0}.hist span{width:16px;height:16px;border-radius:3px;display:inline-block}
+.tools{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.tools button{font-size:1em;padding:8px 14px;border-radius:10px;cursor:pointer;min-height:44px;background:#fff;color:#222;border:1px solid #bbb;touch-action:manipulation}
+.sum{font-size:1.2em;text-align:center;overflow-wrap:anywhere}
+.note{font-size:.85em;color:#666;text-align:center}
+@media (max-width:640px){
+  .wrap{margin:8px;border-radius:16px;padding:14px 12px calc(16px + env(safe-area-inset-bottom))}
+  .tab{font-size:1rem;padding:10px 12px}
+  .pick.colors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .cb{width:100%;height:88px;font-size:1.15rem}
+  .cb.sel{transform:none;outline:3px solid #111;outline-offset:2px}
+  #num{font-size:2.2rem;height:64px}
+  #start{font-size:1.45rem;padding:14px 24px;width:100%}
+  .big{font-size:3rem}
+  .sum{font-size:1.05rem}
+  #tbl{border:0}
+  #tbl tbody{display:block}
+  #tbl tr.hr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  #tbl tr{display:block;margin:0 0 10px;border:1px solid #ddd;border-radius:12px;overflow:hidden}
+  #tbl td{display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:right;border:0;border-bottom:1px solid #eee;padding:8px 10px}
+  #tbl td:last-child{border-bottom:0}
+  #tbl td::before{content:attr(data-h);font-weight:600;text-align:left;color:#333}
+  #tbl td.empty{display:block;text-align:center}
+  #tbl td.empty::before{content:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .hit{animation:none}
+  .cb.sel{transform:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>🔮 ТРЕНАЖОР НА ИНТУИЦИЯТА</h1>
+<div class="tabs" id="tabs"></div>
+<div id="pickArea"></div>
+<button type="button" id="start">СТАРТ</button>
+<div id="out"></div>
+<div class="sum" id="sum"></div>
+<div class="hist" id="hist"></div>
+<table id="tbl"></table>
+<div class="tools">
+<button type="button" id="mute">🔊 Звук: вкл.</button>
+<button type="button" id="csv">💾 Експорт CSV</button>
+<button type="button" id="reset">🗑 Нулирай режима</button>
+</div>
+<p class="note">Числото/цветът се генерира едва СЛЕД натискане на СТАРТ (crypto.getRandomValues). Пазят се последните 100 опита за всеки режим. p-стойност: едностранен биномен тест спрямо случайността.</p>
+</div>
+<script>
+const MODES=[{id:'num',name:'Число 0–100',n:101},
+{id:'rb',name:'Червено / Синьо',n:2,c:[['Червено','#e53935'],['Синьо','#1e88e5']]},
+{id:'rbyg',name:'4 цвята',n:4,c:[['Червено','#e53935'],['Синьо','#1e88e5'],['Жълто','#fdd835'],['Зелено','#43a047']]}];
+function randInt(n){const lim=Math.floor(4294967296/n)*n,a=new Uint32Array(1);do{crypto.getRandomValues(a)}while(a[0]>=lim);return a[0]%n}
+function logC(n,k){let s=0;for(let i=1;i<=k;i++)s+=Math.log(n-k+i)-Math.log(i);return s}
+function pval(k,n,p){if(k<=0)return 1;let s=0;for(let i=k;i<=n;i++)s+=Math.exp(logC(n,i)+i*Math.log(p)+(n-i)*Math.log1p(-p));return Math.min(1,s)}
+function windowStats(h,p){const r=[];for(let w=10;w<=100;w+=10){if(h.length<w)break;const s=h.slice(-w),k=s.filter(x=>x.hit).length;r.push({w,k,pct:100*k/w,p:pval(k,w,p)})}return r}
+if(typeof module!=='undefined'){module.exports={randInt,pval,windowStats};}
+else{
+let mode=0,sel=null,muted=false,warnedStore=false,ac,playing=[];
+function storageGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function storageSet(k,v){try{localStorage.setItem(k,v);return true}catch(e){return false}}
+function storageDel(k){try{localStorage.removeItem(k)}catch(e){}}
+muted=storageGet('ti_mute')==='1';
+const $=id=>document.getElementById(id);
+const load=m=>{
+  try{
+    const raw=storageGet('ti_'+MODES[m].id);
+    const h=raw?JSON.parse(raw):[];
+    if(!Array.isArray(h)) return [];
+    return h.filter(x=>x&&typeof x.g==='number'&&typeof x.r==='number'&&typeof x.hit==='boolean').slice(-100);
+  }catch(e){return []}
+};
+const save=(m,h)=>{
+  if(!storageSet('ti_'+MODES[m].id,JSON.stringify(h.slice(-100)))&&!warnedStore){
+    warnedStore=true;
+    alert('Браузърът не позволи запис на статистиката.');
+  }
+};
+const label=(M,v)=>M.c?M.c[v][0]:String(v);
+function ink(hex){
+  const n=parseInt(hex.slice(1),16);
+  const y=((n>>16)*299+((n>>8)&255)*587+(n&255)*114)/1000;
+  return y>160?'#222':'#fff';
+}
+function tabs(){$('tabs').innerHTML=MODES.map((M,i)=>`<button type="button" class="tab ${i===mode?'on':''}" onclick="setMode(${i})">${M.name}</button>`).join('')}
+window.setMode=i=>{mode=i;sel=null;$('out').innerHTML='';tabs();pick();stats()};
+function pick(){
+  const M=MODES[mode];
+  if(!M.c){
+    $('pickArea').innerHTML='<div class="pick"><label style="font-size:1.4em">Твоето число (0–100):<br><input id="num" type="number" inputmode="numeric" min="0" max="100" step="1" enterkeyhint="go"></label></div>';
+    $('num').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();go()}});
+  }else{
+    $('pickArea').innerHTML='<div class="pick colors">'+M.c.map((c,i)=>{
+      const fg=ink(c[1]);
+      const shadow=fg==='#fff'?'0 1px 3px #000':'none';
+      return `<button type="button" class="cb ${sel===i?'sel':''}" style="background:${c[1]};color:${fg};text-shadow:${shadow}" onclick="choose(${i})">${c[0]}</button>`;
+    }).join('')+'</div>';
+  }
+}
+window.choose=i=>{sel=i;pick();const b=document.querySelectorAll('.cb')[i];if(b) b.focus()};
+function ctx(){
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC) return null;
+  try{
+    if(!ac) ac=new AC();
+    if(ac.state==='suspended') ac.resume().catch(()=>{});
+    return ac;
+  }catch(e){return null}
+}
+function unlock(){ctx()}
+function stopSound(){
+  if(window.speechSynthesis){try{speechSynthesis.cancel()}catch(e){}}
+  playing.forEach(o=>{try{o.stop()}catch(e){}});
+  playing=[];
+}
+function tone(f,t0,d,type,vib,f2){
+  const c=ctx();
+  if(!c) return;
+  try{
+    const o=c.createOscillator(),g=c.createGain();
+    const t=c.currentTime+Math.max(0,t0);
+    o.type=type||'square';
+    o.frequency.setValueAtTime(f,t);
+    if(f2) o.frequency.linearRampToValueAtTime(f2,t+d);
+    if(vib){
+      const l=c.createOscillator(),lg=c.createGain();
+      l.frequency.value=6;lg.gain.value=vib;
+      l.connect(lg);lg.connect(o.frequency);
+      l.start(t);l.stop(t+d);
+      track(l);
+    }
+    const attackEnd=t+Math.min(.03,d*.25);
+    const releaseStart=Math.max(attackEnd+.01,t+d-.08);
+    const end=Math.max(releaseStart+.02,t+d);
+    g.gain.setValueAtTime(.0001,t);
+    g.gain.exponentialRampToValueAtTime(.25,attackEnd);
+    g.gain.setValueAtTime(.25,releaseStart);
+    g.gain.exponentialRampToValueAtTime(.0001,end);
+    o.connect(g);g.connect(c.destination);
+    o.start(t);o.stop(end+.05);
+    track(o);
+  }catch(e){}
+}
+function track(node){
+  playing.push(node);
+  node.onended=()=>{playing=playing.filter(x=>x!==node)};
+}
+function say(t,pitch,rate,delay){
+  if(!window.speechSynthesis) return;
+  setTimeout(()=>{
+    if(muted) return;
+    try{
+      const u=new SpeechSynthesisUtterance(t);
+      const v=speechSynthesis.getVoices().find(v=>/^bg/i.test(v.lang));
+      if(v) u.voice=v;
+      u.lang='bg-BG';u.pitch=pitch;u.rate=rate;
+      speechSynthesis.speak(u);
+    }catch(e){}
+  },delay||0);
+}
+function win(){if(muted)return;[523,659,784,1047].forEach((f,i)=>tone(f,i*.12,.14,'square'));tone(784,.5,.12);tone(1047,.62,.5,'square',8);say('Яба-даба-дууу!',2,1.3,900)}
+function lose(){if(muted)return;tone(392,0,.35,'sawtooth',0,370);tone(370,.4,.35,'sawtooth',0,349);tone(349,.8,.35,'sawtooth',0,330);tone(330,1.2,1.3,'sawtooth',12,290);
+if(window.speechSynthesis){['Уа',' уа',' уа',' уааа'].forEach((w,i)=>say(w,Math.max(0.1,1.6-i*.45),i==3?.5:1,2600+i*450))}}
+function go(){
+  unlock();
+  const M=MODES[mode];
+  let g;
+  if(!M.c){
+    const v=$('num').value.trim();
+    g=Number(v);
+    if(v===''||!Number.isInteger(g)||g<0||g>100){alert('Въведи цяло число от 0 до 100!');return}
+  }else if(sel===null){alert('Първо избери цвят!');return}
+  else g=sel;
+  let r;
+  try{r=randInt(M.n)}catch(e){alert('Генераторът на случайни числа не е достъпен в този браузър.');return}
+  const hit=r===g,h=load(mode);
+  h.push({t:new Date().toISOString(),g,r,hit});
+  save(mode,h);
+  const show=M.c?`<div class="sw" style="background:${M.c[r][1]}"></div><div style="font-size:1.5em">${M.c[r][0]}</div>`:`<div class="big">${r}</div>`;
+  $('out').innerHTML=`<div>Ти избра: <b>${label(M,g)}</b> · Генерирано:</div>${show}<div class="msg ${hit?'hit':'miss'}">${hit?'ТИ УСПЯ! 🎉':'УСПЯ… ама ДРУГ ПЪТ 😅'}</div>`;
+  try{hit?win():lose()}catch(e){}
+  stats();
+  const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  $('out').scrollIntoView({behavior:reduce?'auto':'smooth',block:'nearest'});
+}
+const HEADS=['Последни опити','Познати','%','Очаквано','p-стойност','Оценка'];
+function stats(){
+  const M=MODES[mode],h=load(mode),p=1/M.n,k=h.filter(x=>x.hit).length;
+  $('sum').innerHTML=`Опити (последни ≤100): <b>${h.length}</b> · Познати: <b style="color:green">${k}</b> · Грешни: <b style="color:red">${h.length-k}</b> · Успеваемост: <b>${h.length?(100*k/h.length).toFixed(1):0}%</b> · Случаен шанс: <b>${(100*p).toFixed(M.n==101?2:0)}%</b>`;
+  $('hist').innerHTML=h.slice(-50).map(x=>`<span title="${label(M,x.g)} → ${label(M,x.r)}" style="background:${x.hit?'#43a047':'#e53935'}"></span>`).join('');
+  const w=windowStats(h,p);
+  const head='<tr class="hr">'+HEADS.map(x=>`<th>${x}</th>`).join('')+'</tr>';
+  const body=w.length?w.map(r=>{
+    const cells=[r.w,r.k,r.pct.toFixed(0)+'%',(r.w*p).toFixed(1),r.p<.001?r.p.toExponential(1):r.p.toFixed(3),r.p<.05?'⭐ над случайността':'в рамките на случайността'];
+    return `<tr class="${r.p<.05?'good':''}">`+cells.map((c,i)=>`<td data-h="${HEADS[i]}">${c}</td>`).join('')+'</tr>';
+  }).join(''):'<tr><td class="empty" colspan="6">Направи поне 10 опита за статистика</td></tr>';
+  $('tbl').innerHTML=head+body;
+}
+function downloadBlob(blob,name){
+  const a=document.createElement('a');
+  const url=URL.createObjectURL(blob);
+  a.href=url;a.download=name;a.rel='noopener';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},1500);
+}
+$('start').onclick=go;
+$('mute').onclick=()=>{
+  muted=!muted;
+  if(muted) stopSound();
+  storageSet('ti_mute',muted?'1':'0');
+  $('mute').textContent=muted?'🔇 Звук: изкл.':'🔊 Звук: вкл.';
+};
+$('mute').textContent=muted?'🔇 Звук: изкл.':'🔊 Звук: вкл.';
+$('reset').onclick=()=>{
+  if(confirm('Да изтрия ли статистиката за режим „'+MODES[mode].name+'“?')){
+    storageDel('ti_'+MODES[mode].id);
+    $('out').innerHTML='';
+    stats();
+  }
+};
+$('csv').onclick=async()=>{
+  const M=MODES[mode],h=load(mode);
+  const s='\ufeffДата и час;Избор;Генерирано;Познато\n'+h.map(x=>`${new Date(x.t).toLocaleString('bg-BG')};${label(M,x.g)};${label(M,x.r)};${x.hit?'ДА':'НЕ'}`).join('\n');
+  const name='intuicia_'+M.id+'.csv';
+  const blob=new Blob([s],{type:'text/csv;charset=utf-8'});
+  const file=new File([blob],name,{type:'text/csv'});
+  const touch=navigator.maxTouchPoints>0&&Math.min(screen.width,screen.height)<900;
+  try{
+    if(touch&&navigator.canShare&&navigator.canShare({files:[file]})){
+      await navigator.share({files:[file],title:name});
+      return;
+    }
+  }catch(e){
+    if(e&&e.name==='AbortError') return;
+  }
+  downloadBlob(blob,name);
+};
+document.addEventListener('pointerdown',unlock,{passive:true});
+if(window.speechSynthesis){
+  speechSynthesis.getVoices();
+  speechSynthesis.addEventListener('voiceschanged',()=>speechSynthesis.getVoices());
+}
+tabs();pick();stats()}
+</script>
+</body>
+</html>
